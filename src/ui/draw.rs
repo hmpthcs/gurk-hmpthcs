@@ -4,9 +4,9 @@ use std::fmt;
 
 use chrono::Datelike;
 use itertools::Itertools;
-use ratatui::Frame;
 use ratatui::text::{Line, Span, Text};
 use ratatui::widgets::{Block, Borders, Clear, List, ListDirection, ListItem, Paragraph};
+use ratatui::Frame;
 use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     widgets::Padding,
@@ -27,8 +27,8 @@ use crate::receipt::{Receipt, ReceiptEvent};
 use crate::storage::MessageId;
 use crate::util::utc_timestamp_msec_to_local;
 
-use super::CHANNEL_VIEW_RATIO;
 use super::name_resolver::NameResolver;
+use super::CHANNEL_VIEW_RATIO;
 
 /// The main function drawing the UI for each frame
 pub fn draw(f: &mut Frame, app: &mut App) {
@@ -94,7 +94,7 @@ fn draw_select_channel_popup(f: &mut Frame, select_channel: &mut SelectChannel) 
     }
     let list = List::new(items)
         .block(Block::default().borders(Borders::ALL))
-        .highlight_style(Style::default().fg(Color::Black).bg(Color::Gray));
+        .highlight_style(Style::default().fg(Color::Rgb(255, 255, 255)).bg(Color::Black));
     f.render_stateful_widget(list, chunks[1], &mut select_channel.state);
 }
 
@@ -128,7 +128,7 @@ fn draw_channels(f: &mut Frame, app: &mut App, area: Rect) {
 
     let channels = List::new(channels)
         .block(Block::default().borders(Borders::ALL).title("Channels"))
-        .highlight_style(Style::default().fg(Color::Black).bg(Color::Gray));
+        .highlight_style(Style::default().fg(Color::Rgb(255, 255, 255)).bg(Color::Black));
     let no_channels = channels.is_empty();
     f.render_stateful_widget(channels, area, &mut app.channels.state);
 
@@ -412,7 +412,7 @@ fn draw_messages(f: &mut Frame, app: &mut App, area: Rect) {
 
     let list = List::new(items)
         .block(Block::default().title(title).borders(Borders::ALL))
-        .highlight_style(Style::default().fg(Color::Black).bg(Color::Gray))
+        .highlight_style(Style::default().fg(Color::Rgb(255, 255, 255)).bg(Color::Black))
         .direction(ListDirection::BottomToTop);
 
     // re-borrow channel messages mutably
@@ -491,12 +491,12 @@ fn display_message(
 ) -> Option<ListItem<'static>> {
     let receipt = Span::styled(
         display_receipt(msg.receipt, show_receipt),
-        Style::default().fg(Color::Yellow),
+        Style::default().fg(Color::DarkGray),
     );
 
     let time = Span::styled(
         display_time(msg.arrived_at),
-        Style::default().fg(Color::Yellow),
+        Style::default().fg(Color::DarkGray),
     );
 
     let (from, from_color) = names.resolve(msg.from_id);
@@ -541,7 +541,7 @@ fn display_message(
         let quote_wrap_opts = textwrap::Options::new(width.saturating_sub(2))
             .initial_indent(&quote_prefix)
             .subsequent_indent(&quote_prefix);
-        let quote_style = Style::default().fg(Color::Rgb(150, 150, 150));
+        let quote_style = Style::default().fg(Color::Rgb(80, 80, 80));
         spans = textwrap::wrap(quote_text, quote_wrap_opts)
             .into_iter()
             .enumerate()
@@ -590,7 +590,7 @@ fn display_message(
 
     if let Some(reason) = msg.send_failed.as_deref() {
         let error = format!("[Could no send: {reason}]");
-        let error_style = Style::default().fg(Color::Red);
+        let error_style = Style::default().fg(Color::DarkGray);
         spans.extend(
             textwrap::wrap(&error, &wrap_opts)
                 .into_iter()
@@ -834,7 +834,7 @@ mod tests {
     }
 
     fn name_resolver() -> NameResolver<'static> {
-        NameResolver::single_user(USER_ID, "boxdot".to_string(), Color::Green)
+        NameResolver::single_user(USER_ID, "boxdot".to_string(), Color::DarkGray)
     }
 
     fn test_message() -> Message {
@@ -872,12 +872,12 @@ mod tests {
 
         let expected = ListItem::new(Text::from(vec![
             Line::from(vec![
-                Span::styled("", Style::default().fg(Color::Yellow)),
+                Span::styled("", Style::default().fg(Color::DarkGray)),
                 Span::styled(
                     display_time(msg.arrived_at),
-                    Style::default().fg(Color::Yellow),
+                    Style::default().fg(Color::DarkGray),
                 ),
-                Span::styled("boxdot", Style::default().fg(Color::Green)),
+                Span::styled("boxdot", Style::default().fg(Color::DarkGray)),
                 Span::raw(": "),
                 Span::raw("<file:///tmp/gurk/signal-2022-01-"),
             ]),
@@ -908,12 +908,12 @@ mod tests {
 
         let expected = ListItem::new(Text::from(vec![
             Line::from(vec![
-                Span::styled("", Style::default().fg(Color::Yellow)),
+                Span::styled("", Style::default().fg(Color::DarkGray)),
                 Span::styled(
                     display_time(msg.arrived_at),
-                    Style::default().fg(Color::Yellow),
+                    Style::default().fg(Color::DarkGray),
                 ),
-                Span::styled("boxdot", Style::default().fg(Color::Green)),
+                Span::styled("boxdot", Style::default().fg(Color::DarkGray)),
                 Span::raw(": "),
                 Span::raw("Hello, World!"),
             ]),
@@ -939,12 +939,12 @@ mod tests {
         let rendered = display_message(&names, &msg, PREFIX, WIDTH, HEIGHT, show_receipt, false);
 
         let expected = ListItem::new(Text::from(vec![Line::from(vec![
-            Span::styled("○ ", Style::default().fg(Color::Yellow)),
+            Span::styled("○ ", Style::default().fg(Color::DarkGray)),
             Span::styled(
                 display_time(msg.arrived_at),
-                Style::default().fg(Color::Yellow),
+                Style::default().fg(Color::DarkGray),
             ),
-            Span::styled("boxdot", Style::default().fg(Color::Green)),
+            Span::styled("boxdot", Style::default().fg(Color::DarkGray)),
             Span::raw(": "),
             Span::raw("Hello, World!"),
         ])]));
@@ -963,12 +963,12 @@ mod tests {
         let rendered = display_message(&names, &msg, PREFIX, WIDTH, HEIGHT, show_receipt, false);
 
         let expected = ListItem::new(Text::from(vec![Line::from(vec![
-            Span::styled("◉ ", Style::default().fg(Color::Yellow)),
+            Span::styled("◉ ", Style::default().fg(Color::DarkGray)),
             Span::styled(
                 display_time(msg.arrived_at),
-                Style::default().fg(Color::Yellow),
+                Style::default().fg(Color::DarkGray),
             ),
-            Span::styled("boxdot", Style::default().fg(Color::Green)),
+            Span::styled("boxdot", Style::default().fg(Color::DarkGray)),
             Span::raw(": "),
             Span::raw("Hello, World!"),
         ])]));
@@ -987,12 +987,12 @@ mod tests {
         let rendered = display_message(&names, &msg, PREFIX, WIDTH, HEIGHT, show_receipt, false);
 
         let expected = ListItem::new(Text::from(vec![Line::from(vec![
-            Span::styled("● ", Style::default().fg(Color::Yellow)),
+            Span::styled("● ", Style::default().fg(Color::DarkGray)),
             Span::styled(
                 display_time(msg.arrived_at),
-                Style::default().fg(Color::Yellow),
+                Style::default().fg(Color::DarkGray),
             ),
-            Span::styled("boxdot", Style::default().fg(Color::Green)),
+            Span::styled("boxdot", Style::default().fg(Color::DarkGray)),
             Span::raw(": "),
             Span::raw("Hello, World!"),
         ])]));
@@ -1011,12 +1011,12 @@ mod tests {
         let rendered = display_message(&names, &msg, PREFIX, WIDTH, HEIGHT, show_receipt, false);
 
         let expected = ListItem::new(Text::from(vec![Line::from(vec![
-            Span::styled("", Style::default().fg(Color::Yellow)),
+            Span::styled("", Style::default().fg(Color::DarkGray)),
             Span::styled(
                 display_time(msg.arrived_at),
-                Style::default().fg(Color::Yellow),
+                Style::default().fg(Color::DarkGray),
             ),
-            Span::styled("boxdot", Style::default().fg(Color::Green)),
+            Span::styled("boxdot", Style::default().fg(Color::DarkGray)),
             Span::raw(": "),
             Span::raw("Hello, World!"),
         ])]));
@@ -1026,7 +1026,7 @@ mod tests {
     #[test]
     fn test_display_receipts_for_incoming_message() {
         let user_id = Uuid::from_u128(1);
-        let names = NameResolver::single_user(user_id, "boxdot".to_string(), Color::Green);
+        let names = NameResolver::single_user(user_id, "boxdot".to_string(), Color::DarkGray);
         let msg = Message {
             from_id: user_id,
             message: Some("Hello, World!".into()),
@@ -1037,12 +1037,12 @@ mod tests {
         let rendered = display_message(&names, &msg, PREFIX, WIDTH, HEIGHT, show_receipt, false);
 
         let expected = ListItem::new(Text::from(vec![Line::from(vec![
-            Span::styled("  ", Style::default().fg(Color::Yellow)),
+            Span::styled("  ", Style::default().fg(Color::DarkGray)),
             Span::styled(
                 display_time(msg.arrived_at),
-                Style::default().fg(Color::Yellow),
+                Style::default().fg(Color::DarkGray),
             ),
-            Span::styled("boxdot", Style::default().fg(Color::Green)),
+            Span::styled("boxdot", Style::default().fg(Color::DarkGray)),
             Span::raw(": "),
             Span::raw("Hello, World!"),
         ])]));
@@ -1052,7 +1052,7 @@ mod tests {
     #[test]
     fn test_display_mention() {
         let user_id = Uuid::from_u128(1);
-        let names = NameResolver::single_user(user_id, "boxdot".to_string(), Color::Green);
+        let names = NameResolver::single_user(user_id, "boxdot".to_string(), Color::DarkGray);
         let msg = Message {
             from_id: user_id,
             message: Some("Mention ￼  and even more ￼ . End".into()),
@@ -1076,12 +1076,12 @@ mod tests {
 
         let expected = ListItem::new(Text::from(vec![
             Line::from(vec![
-                Span::styled("  ", Style::default().fg(Color::Yellow)),
+                Span::styled("  ", Style::default().fg(Color::DarkGray)),
                 Span::styled(
                     display_time(msg.arrived_at),
-                    Style::default().fg(Color::Yellow),
+                    Style::default().fg(Color::DarkGray),
                 ),
-                Span::styled("boxdot", Style::default().fg(Color::Green)),
+                Span::styled("boxdot", Style::default().fg(Color::DarkGray)),
                 Span::raw(": "),
                 Span::raw("Mention @boxdot  and even more @boxdot ."),
             ]),
