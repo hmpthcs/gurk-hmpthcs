@@ -1,4 +1,45 @@
 # gurk 🥒
+
+Personal fork, intended for improving appearance on electrophoretic displays.
+
+## Notes
+
+
+### hex to rgb conversion
+
+         #111111 = 17
+         #222222 = 34
+         #333333 = 51
+         #444444 = 68
+         #555555 = 85
+         #666666 = 102
+         #777777 = 119
+         #888888 = 136
+         #999999 = 153
+         #aaaaaa = 170
+         #bbbbbb = 187
+         #cccccc = 204
+         #dddddd = 221
+         #eeeeee = 238
+        
+### Ratatui::style
+
+```
+use ratatui::{
+  style::{Color, Modifier, Style},
+  text::Span,
+};
+
+let heading_style = Style::new()
+  .fg(Color::Black)
+  .bg(Color::Rgb(255, 255, 255)
+  .add_modifier(Modifier::ITALIC | Modifier::BOLD);
+let span - Span::styled("hello", heading_style);
+```
+  
+
+## ORIGINAL README BELOW:
+
 [![ci][ci-badge]][ci-link] [![chat][chat-badge]][chat-link]
 
 [Signal Messenger] client for terminal.
