@@ -541,7 +541,9 @@ fn display_message(
         let quote_wrap_opts = textwrap::Options::new(width.saturating_sub(2))
             .initial_indent(&quote_prefix)
             .subsequent_indent(&quote_prefix);
-        let quote_style = Style::default().fg(Color::Rgb(80, 80, 80));
+        let quote_style = Style::default()
+            .fg(Color::Rgb(68, 68, 68))
+            .add_modifier(Modifier::ITALIC);
         spans = textwrap::wrap(quote_text, quote_wrap_opts)
             .into_iter()
             .enumerate()
