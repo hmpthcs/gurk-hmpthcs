@@ -491,12 +491,12 @@ fn display_message(
 ) -> Option<ListItem<'static>> {
     let receipt = Span::styled(
         display_receipt(msg.receipt, show_receipt),
-        Style::default().fg(Color::DarkGray),
+        Style::default().fg(Color::Rgb(68, 68, 68)).add_modifier(Modifier::BOLD),
     );
 
     let time = Span::styled(
         display_time(msg.arrived_at),
-        Style::default().fg(Color::DarkGray),
+        Style::default().fg(Color::Rgb(68, 68, 68)).add_modifier(Modifier::ITALIC),
     );
 
     let (from, from_color) = names.resolve(msg.from_id);
@@ -511,7 +511,7 @@ fn display_message(
                     .unwrap_or_default(),
             ),
         ),
-        Style::default().fg(from_color),
+        Style::default().fg(from_color).add_modifier(Modifier::BOLD),
     );
     let delimiter = Span::from(": ");
 
@@ -542,7 +542,7 @@ fn display_message(
             .initial_indent(&quote_prefix)
             .subsequent_indent(&quote_prefix);
         let quote_style = Style::default()
-            .fg(Color::Rgb(68, 68, 68))
+            .fg(Color::Rgb(51, 51, 51))
             .add_modifier(Modifier::ITALIC);
         spans = textwrap::wrap(quote_text, quote_wrap_opts)
             .into_iter()
@@ -592,7 +592,7 @@ fn display_message(
 
     if let Some(reason) = msg.send_failed.as_deref() {
         let error = format!("[Could no send: {reason}]");
-        let error_style = Style::default().fg(Color::DarkGray);
+        let error_style = Style::default().fg(Color::Rgb(68, 68, 68));
         spans.extend(
             textwrap::wrap(&error, &wrap_opts)
                 .into_iter()
@@ -836,7 +836,7 @@ mod tests {
     }
 
     fn name_resolver() -> NameResolver<'static> {
-        NameResolver::single_user(USER_ID, "boxdot".to_string(), Color::DarkGray)
+        NameResolver::single_user(USER_ID, "boxdot".to_string(), Color::Rgb(68, 68, 68))
     }
 
     fn test_message() -> Message {
