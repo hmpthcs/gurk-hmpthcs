@@ -72,7 +72,13 @@ impl DeveloperConfig {
 #[derive(Debug, Clone)]
 pub(crate) struct LoadedConfig {
     pub(crate) config: Config,
-    pub(crate) deprecated_keys: Vec<DeprecatedConfigKey>,
+    pub(crate) deprecated_keys: DeprecatedKeys,
+}
+
+#[derive(Debug, Clone)]
+pub(crate) struct DeprecatedKeys {
+    pub(crate) file_path: PathBuf,
+    pub(crate) keys: Vec<DeprecatedConfigKey>,
 }
 
 #[derive(Debug, Clone)]
@@ -134,35 +140,40 @@ impl Config {
         }
 
         // make sure data_path exists
-        let data_path = default_data_dir();
+        let data_path = data_dir();
         fs::create_dir_all(data_path).context("could not create data dir")?;
 
         self.save(path)
     }
 
     fn load(path: impl AsRef<Path>) -> anyhow::Result<LoadedConfig> {
+        let path = path.as_ref();
         let content = std::fs::read_to_string(path)?;
         let config = toml::de::from_str(&content)?;
 
         // check for deprecated keys
         let config_value: toml::Value = toml::de::from_str(&content)?;
-        let mut deprecated_keys = Vec::new();
+        let mut keys = Vec::new();
         if config_value
             .get("sqlite")
             .map(|v| v.get("enabled").is_some())
             .unwrap_or(false)
         {
-            deprecated_keys.push(DeprecatedConfigKey {
+            keys.push(DeprecatedConfigKey {
                 key: "sqlite.enabled",
                 message: "sqlite is now enabled by default",
             });
         }
         if config_value.get("data_path").is_some() {
-            deprecated_keys.push(DeprecatedConfigKey {
+            keys.push(DeprecatedConfigKey {
                 key: "data_path",
                 message: "is not used anymore, and is migrated to sqlite.url",
             });
         }
+        let deprecated_keys = DeprecatedKeys {
+            file_path: path.to_path_buf(),
+            keys,
+        };
 
         Ok(LoadedConfig {
             config,
@@ -204,7 +215,7 @@ impl Default for SqliteConfig {
 
 impl SqliteConfig {
     fn default_db_url() -> Url {
-        let path = default_data_dir().join("gurk.sqlite");
+        let path = data_dir().join("gurk.sqlite");
         format!("sqlite://{}", path.display())
             .parse()
             .expect("invalid default sqlite path")
@@ -244,7 +255,7 @@ fn installed_config() -> Option<PathBuf> {
 
 /// Path to store the signal database containing the data for the linked device.
 pub fn default_signal_db_path() -> PathBuf {
-    default_data_dir().join("signal-db")
+    data_dir().join("signal-db")
 }
 
 /// Fallback to legacy data path location
@@ -252,15 +263,14 @@ pub fn fallback_data_path() -> Option<PathBuf> {
     dirs::home_dir().map(|p| p.join(".gurk.data.json"))
 }
 
-fn default_data_dir() -> PathBuf {
-    match dirs::data_dir() {
-        Some(dir) => dir.join("gurk"),
-        None => panic!("default data directory not found, $XDG_DATA_HOME and $HOME are unset"),
-    }
+pub(crate) fn data_dir() -> PathBuf {
+    let data_dir =
+        dirs::data_dir().expect("data directory not found, $XDG_DATA_HOME and $HOME are unset?");
+    data_dir.join("gurk")
 }
 
 fn default_data_json_path() -> PathBuf {
-    default_data_dir().join("gurk.data.json")
+    data_dir().join("gurk.data.json")
 }
 
 fn default_true() -> bool {
