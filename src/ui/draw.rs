@@ -500,7 +500,7 @@ fn display_message(
     );
 
     let (from, from_color) = names.resolve(msg.from_id);
-
+ 
     let from = Span::styled(
         textwrap::indent(
             &from,
@@ -511,7 +511,7 @@ fn display_message(
                     .unwrap_or_default(),
             ),
         ),
-        Style::default().fg(from_color).add_modifier(Modifier::BOLD),
+        Style::default().fg(Color::Rgb(85, 85, 85)).add_modifier(Modifier::BOLD),
     );
     let delimiter = Span::from(": ");
 
