@@ -1,0 +1,21 @@
+# Base config. Change 'user' section and add to ~/.config/gurk/
+
+data_path = "$HOME/.local/share/gurk/gurk.data.json"
+signal_db_path = "$HOME/.local/share/gurk/signal-db"
+first_name_only = false
+show_receipts = true
+notifications = true
+bell = true
+colored_messages = false
+default_keybindings = true
+
+[user]
+name = "XXX"
+phone_number = "+XXX"
+
+[sqlite]
+enabled = false
+url = "sqlite:///$HOME/.local/share/gurk/gurk.sqlite"
+_preserve_unencryped = false
+
+[keybindings]
